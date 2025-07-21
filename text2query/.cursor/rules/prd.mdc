@@ -1,0 +1,304 @@
+---
+description: When you need to understand the context and requirements of the current task When you need to grasp the purpose of the work When there is a change in the ongoing task
+alwaysApply: false
+---
+# text2query MCP Server - GraphQL + MongoDB PRD
+
+## 프로젝트 개요
+자연어를 GraphQL 쿼리로 변환하는 MCP 서버입니다. 사용자가 한국어로 질의하면 GraphQL 쿼리로 변환하여 MongoDB 데이터를 조회할 수 있습니다.
+
+## 기술 스택
+- **Backend**: Node.js + TypeScript + Apollo Server + Mongoose
+- **Database**: MongoDB with sample data
+- **Container**: Docker Compose
+- **MCP**: @modelcontextprotocol/sdk
+
+## 아키텍처
+
+### Docker 환경
+```yaml
+# docker-compose.yml 구성
+services:
+  - mongodb: 샘플 데이터 포함
+  - graphql-server: Apollo Server + Mongoose
+  - mongo-express: 데이터 확인용 웹 UI
+```
+
+### 데이터 모델
+
+**User Collection:**
+```javascript
+{
+  _id: ObjectId,
+  name: String,       // 사용자 이름
+  email: String,      // 이메일 주소
+  age: Number,        // 나이
+  department: String  // 부서명
+}
+```
+
+**Post Collection:**
+```javascript
+{
+  _id: ObjectId,
+  title: String,      // 게시글 제목
+  content: String,    // 게시글 내용
+  authorId: ObjectId, // User 참조
+  createdAt: Date     // 작성일
+}
+```
+
+**Comment Collection:**
+```javascript
+{
+  _id: ObjectId,
+  content: String,    // 댓글 내용
+  postId: ObjectId,   // Post 참조
+  authorId: ObjectId, // User 참조 (댓글 작성자)
+  createdAt: Date     // 작성일
+}
+```
+
+### GraphQL 스키마 설계
+
+**쿼리 타입:**
+- `users`: 모든 사용자 조회
+- `user(id: ID!)`: 특정 사용자 조회
+- `posts`: 모든 게시글 조회
+- `post(id: ID!)`: 특정 게시글 조회
+- `comments`: 모든 댓글 조회
+
+**관계 필드:**
+- `User.posts`: 사용자가 작성한 게시글들
+- `Post.author`: 게시글 작성자
+- `Post.comments`: 게시글의 댓글들
+- `Comment.author`: 댓글 작성자
+- `Comment.post`: 댓글이 달린 게시글
+
+## MCP Tools 명세
+
+### 1. `text_to_graphql`
+**목적:** 자연어를 GraphQL 쿼리로 변환
+**입력:** 
+- `text` (string): 자연어 질의문
+**출력:** 
+- GraphQL 쿼리 문자열
+
+**변환 예시:**
+- "모든 사용자의 이름과 이메일" → `{ users { name email } }`
+- "김철수가 작성한 게시글" → `{ posts(filter: {author: {name: "김철수"}}) { title content } }`
+
+### 2. `execute_graphql`
+**목적:** GraphQL 쿼리 실행 및 결과 반환
+**입력:**
+- `query` (string): GraphQL 쿼리
+**출력:**
+- 쿼리 실행 결과 (JSON)
+
+### 3. `get_schema_info`
+**목적:** 사용 가능한 GraphQL 스키마 정보 제공
+**입력:** 없음
+**출력:**
+- 타입 정의, 필드 목록, 관계 정보
+
+## 자연어 변환 로직
+
+### 한국어 패턴 처리
+- **전체 조회**: "모든 X", "전체 X"
+- **특정 조회**: "X의 Y", "X에서 Y"
+- **조건부 조회**: "X where 조건", "조건에 맞는 X"
+- **관계 조회**: "X가 작성한 Y", "X에 달린 Y"
+
+### 변환 규칙
+1. 엔티티 인식: User, Post, Comment
+2. 필드 매핑: 이름→name, 이메일→email, 제목→title 등
+3. 관계 처리: 작성자, 댓글, 게시글 간 관계
+4. 필터 조건: 이름, 날짜, 부서 등
+
+## 프로젝트 구조
+```
+tutorial/
+├── docker-compose.yml          # Docker Compose 설정
+├── .env                        # 환경 변수
+├── mongo-init/
+│   └── seed-data.js           # MongoDB 초기 데이터
+├── graphql-server/
+│   ├── src/
+│   │   ├── schema.ts          # GraphQL 스키마 정의
+│   │   ├── resolvers.ts       # GraphQL 리졸버
+│   │   ├── models.ts          # Mongoose 모델
+│   │   └── index.ts           # Apollo Server 설정
+│   ├── package.json
+│   └── Dockerfile
+└── mcp-server/
+    ├── src/
+    │   ├── index.ts           # MCP 서버 진입점
+    │   ├── tools.ts           # MCP 도구 구현
+    │   └── converter.ts       # 자연어→GraphQL 변환기
+    └── package.json
+```
+
+## 성공 기준
+1. **환경 구성**: Docker Compose로 전체 환경 일괄 실행
+2. **데이터 준비**: MongoDB에 샘플 데이터 자동 삽입
+3. **GraphQL API**: 모든 CRUD 작업 및 관계 조회 지원
+4. **MCP 통합**: 3개 도구 모두 정상 작동
+5. **자연어 처리**: 기본적인 한국어 패턴 변환 성공
+6. **접근성**: GraphQL Playground와 Mongo Express UI 제공
+
+## 추가 고려사항
+- **에러 처리**: 잘못된 쿼리, 존재하지 않는 데이터 처리
+- **성능**: 복잡한 관계 조회 최적화
+- **확장성**: 새로운 컬렉션/필드 추가 용이성
+- **문서화**: 단계별 실행 가이드 및 API 문서
+---
+# text2query MCP Server - GraphQL + MongoDB PRD
+
+## 프로젝트 개요
+자연어를 GraphQL 쿼리로 변환하는 MCP 서버입니다. 사용자가 한국어로 질의하면 GraphQL 쿼리로 변환하여 MongoDB 데이터를 조회할 수 있습니다.
+
+## 기술 스택
+- **Backend**: Node.js + TypeScript + Apollo Server + Mongoose
+- **Database**: MongoDB with sample data
+- **Container**: Docker Compose
+- **MCP**: @modelcontextprotocol/sdk
+
+## 아키텍처
+
+### Docker 환경
+```yaml
+# docker-compose.yml 구성
+services:
+  - mongodb: 샘플 데이터 포함
+  - graphql-server: Apollo Server + Mongoose
+  - mongo-express: 데이터 확인용 웹 UI
+```
+
+### 데이터 모델
+
+**User Collection:**
+```javascript
+{
+  _id: ObjectId,
+  name: String,       // 사용자 이름
+  email: String,      // 이메일 주소
+  age: Number,        // 나이
+  department: String  // 부서명
+}
+```
+
+**Post Collection:**
+```javascript
+{
+  _id: ObjectId,
+  title: String,      // 게시글 제목
+  content: String,    // 게시글 내용
+  authorId: ObjectId, // User 참조
+  createdAt: Date     // 작성일
+}
+```
+
+**Comment Collection:**
+```javascript
+{
+  _id: ObjectId,
+  content: String,    // 댓글 내용
+  postId: ObjectId,   // Post 참조
+  authorId: ObjectId, // User 참조 (댓글 작성자)
+  createdAt: Date     // 작성일
+}
+```
+
+### GraphQL 스키마 설계
+
+**쿼리 타입:**
+- `users`: 모든 사용자 조회
+- `user(id: ID!)`: 특정 사용자 조회
+- `posts`: 모든 게시글 조회
+- `post(id: ID!)`: 특정 게시글 조회
+- `comments`: 모든 댓글 조회
+
+**관계 필드:**
+- `User.posts`: 사용자가 작성한 게시글들
+- `Post.author`: 게시글 작성자
+- `Post.comments`: 게시글의 댓글들
+- `Comment.author`: 댓글 작성자
+- `Comment.post`: 댓글이 달린 게시글
+
+## MCP Tools 명세
+
+### 1. `text_to_graphql`
+**목적:** 자연어를 GraphQL 쿼리로 변환
+**입력:** 
+- `text` (string): 자연어 질의문
+**출력:** 
+- GraphQL 쿼리 문자열
+
+**변환 예시:**
+- "모든 사용자의 이름과 이메일" → `{ users { name email } }`
+- "김철수가 작성한 게시글" → `{ posts(filter: {author: {name: "김철수"}}) { title content } }`
+
+### 2. `execute_graphql`
+**목적:** GraphQL 쿼리 실행 및 결과 반환
+**입력:**
+- `query` (string): GraphQL 쿼리
+**출력:**
+- 쿼리 실행 결과 (JSON)
+
+### 3. `get_schema_info`
+**목적:** 사용 가능한 GraphQL 스키마 정보 제공
+**입력:** 없음
+**출력:**
+- 타입 정의, 필드 목록, 관계 정보
+
+## 자연어 변환 로직
+
+### 한국어 패턴 처리
+- **전체 조회**: "모든 X", "전체 X"
+- **특정 조회**: "X의 Y", "X에서 Y"
+- **조건부 조회**: "X where 조건", "조건에 맞는 X"
+- **관계 조회**: "X가 작성한 Y", "X에 달린 Y"
+
+### 변환 규칙
+1. 엔티티 인식: User, Post, Comment
+2. 필드 매핑: 이름→name, 이메일→email, 제목→title 등
+3. 관계 처리: 작성자, 댓글, 게시글 간 관계
+4. 필터 조건: 이름, 날짜, 부서 등
+
+## 프로젝트 구조
+```
+tutorial/
+├── docker-compose.yml          # Docker Compose 설정
+├── .env                        # 환경 변수
+├── mongo-init/
+│   └── seed-data.js           # MongoDB 초기 데이터
+├── graphql-server/
+│   ├── src/
+│   │   ├── schema.ts          # GraphQL 스키마 정의
+│   │   ├── resolvers.ts       # GraphQL 리졸버
+│   │   ├── models.ts          # Mongoose 모델
+│   │   └── index.ts           # Apollo Server 설정
+│   ├── package.json
+│   └── Dockerfile
+└── mcp-server/
+    ├── src/
+    │   ├── index.ts           # MCP 서버 진입점
+    │   ├── tools.ts           # MCP 도구 구현
+    │   └── converter.ts       # 자연어→GraphQL 변환기
+    └── package.json
+```
+
+## 성공 기준
+1. **환경 구성**: Docker Compose로 전체 환경 일괄 실행
+2. **데이터 준비**: MongoDB에 샘플 데이터 자동 삽입
+3. **GraphQL API**: 모든 CRUD 작업 및 관계 조회 지원
+4. **MCP 통합**: 3개 도구 모두 정상 작동
+5. **자연어 처리**: 기본적인 한국어 패턴 변환 성공
+6. **접근성**: GraphQL Playground와 Mongo Express UI 제공
+
+## 추가 고려사항
+- **에러 처리**: 잘못된 쿼리, 존재하지 않는 데이터 처리
+- **성능**: 복잡한 관계 조회 최적화
+- **확장성**: 새로운 컬렉션/필드 추가 용이성
+- **문서화**: 단계별 실행 가이드 및 API 문서
+---
