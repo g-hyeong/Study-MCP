@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: text2query-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-password}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE:-text2query}
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongo-init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - text2query-network
+
+  mongo-express:
+    image: mongo-express:1.0
+    container_name: text2query-mongo-express
+    restart: unless-stopped
+    depends_on:
+      - mongodb
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_ROOT_USERNAME:-admin}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_ROOT_PASSWORD:-password}
+      ME_CONFIG_MONGODB_URL: mongodb://${MONGO_ROOT_USERNAME:-admin}:${MONGO_ROOT_PASSWORD:-password}@mongodb:27017/
+      ME_CONFIG_BASICAUTH: false
+    ports:
+      - "8081:8081"
+    networks:
+      - text2query-network
+
+  graphql-server:
+    build: 
+      context: ./graphql-server
+      dockerfile: Dockerfile
+    container_name: text2query-graphql
+    restart: unless-stopped
+    depends_on:
+      - mongodb
+    environment:
+      MONGODB_URI: mongodb://${MONGO_ROOT_USERNAME:-admin}:${MONGO_ROOT_PASSWORD:-password}@mongodb:27017/${MONGO_DATABASE:-text2query}?authSource=admin
+      NODE_ENV: development
+      PORT: 4000
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./graphql-server/src:/app/src
+    networks:
+      - text2query-network
+
+  mcp-server:
+    build:
+      context: ./mcp-server
+      dockerfile: Dockerfile
+    container_name: text2query-mcp
+    restart: unless-stopped
+    depends_on:
+      - graphql-server
+    environment:
+      GRAPHQL_ENDPOINT: http://graphql-server:4000/graphql
+      NODE_ENV: development
+    volumes:
+      - ./mcp-server/src:/app/src
+    networks:
+      - text2query-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  text2query-network:
+    driver: bridge

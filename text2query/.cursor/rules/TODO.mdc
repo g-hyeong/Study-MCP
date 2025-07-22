@@ -8,10 +8,10 @@ alwaysApply: false
 
 ### Phase 1: 기본 환경 설정
 - [ ] **프로젝트 구조 생성**
-  - [ ] `tutorial/.cursor/rules/` 디렉터리 생성 ✅
-  - [ ] `tutorial/mongo-init/` 디렉터리 생성
-  - [ ] `tutorial/graphql-server/` 디렉터리 생성
-  - [ ] `tutorial/mcp-server/` 디렉터리 생성
+  - [ ] `text2query/.cursor/rules/` 디렉터리 생성 ✅
+  - [ ] `text2query/mongo-init/` 디렉터리 생성
+  - [ ] `text2query/graphql-server/` 디렉터리 생성
+  - [ ] `text2query/mcp-server/` 디렉터리 생성
 
 - [ ] **Docker 환경 설정**
   - [ ] `docker-compose.yml` 작성
@@ -196,10 +196,10 @@ alwaysApply: false
 
 ### Phase 1: 기본 환경 설정
 - [ ] **프로젝트 구조 생성**
-  - [ ] `tutorial/.cursor/rules/` 디렉터리 생성 ✅
-  - [ ] `tutorial/mongo-init/` 디렉터리 생성
-  - [ ] `tutorial/graphql-server/` 디렉터리 생성
-  - [ ] `tutorial/mcp-server/` 디렉터리 생성
+  - [ ] `text2query/.cursor/rules/` 디렉터리 생성 ✅
+  - [ ] `text2query/mongo-init/` 디렉터리 생성
+  - [ ] `text2query/graphql-server/` 디렉터리 생성
+  - [ ] `text2query/mcp-server/` 디렉터리 생성
 
 - [ ] **Docker 환경 설정**
   - [ ] `docker-compose.yml` 작성

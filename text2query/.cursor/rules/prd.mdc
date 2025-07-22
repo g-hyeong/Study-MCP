@@ -117,7 +117,7 @@ services:
 
 ## 프로젝트 구조
 ```
-tutorial/
+text2query/
 ├── docker-compose.yml          # Docker Compose 설정
 ├── .env                        # 환경 변수
 ├── mongo-init/
@@ -267,7 +267,7 @@ services:
 
 ## 프로젝트 구조
 ```
-tutorial/
+text2query/
 ├── docker-compose.yml          # Docker Compose 설정
 ├── .env                        # 환경 변수
 ├── mongo-init/
