@@ -1,7 +1,6 @@
 ---
-alwaysApply: true
+alwaysApply: false
 ---
-
 # TypeScript 안전 개발 규칙
 
 ## 타입 안전성

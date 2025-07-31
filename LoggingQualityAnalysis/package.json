@@ -1,0 +1,39 @@
+{
+  "name": "@bzzmnyd/logging-quality-analysis-mcp",
+  "version": "1.0.0",
+  "description": "MCP Server for analyzing JavaScript logging code quality with @bzzmnyd/lib logger",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test tests/**/*.test.js",
+    "lint": "eslint src/ tests/",
+    "format": "prettier --write src/ tests/"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "@babel/parser": "^7.23.0",
+    "@babel/traverse": "^7.23.0",
+    "@babel/types": "^7.23.0",
+    "glob": "^10.3.0",
+    "fs-extra": "^11.2.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.0"
+  },
+  "keywords": [
+    "mcp",
+    "logging",
+    "code-analysis",
+    "javascript",
+    "ast",
+    "bzzmnyd"
+  ],
+  "author": "Internal Development Team",
+  "license": "MIT"
+}
