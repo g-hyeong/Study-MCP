@@ -27,14 +27,17 @@ export const WeatherInputSchema = z.object({
   unit: z.enum(['celsius', 'fahrenheit']).optional().default('celsius').describe('온도 단위')
 });
 
-// 출력 타입 정의
+// 출력 스키마 정의
+export const WeatherOutputSchema = z.object({
+  city: z.string().describe('조회된 도시명'),
+  temperature: z.number().describe('현재 온도'),
+  condition: z.string().describe('날씨 상태 (예: 맑음, 흐림, 비)'),
+  humidity: z.number().min(0).max(100).describe('습도 (0-100%)')
+});
+
+// 타입 정의
 export type WeatherInput = z.infer<typeof WeatherInputSchema>;
-export type WeatherOutput = {
-  city: string;
-  temperature: number;
-  condition: string;
-  humidity: number;
-};
+export type WeatherOutput = z.infer<typeof WeatherOutputSchema>;
 
 // 도구 정의
 export const weatherTool = {
@@ -45,12 +48,16 @@ export const weatherTool = {
     // 실제 날씨 API 호출 로직
     const weather = await fetchWeatherData(input.city, input.unit);
     
-    return {
+    // 출력 데이터 검증 및 반환
+    const result = {
       city: input.city,
       temperature: weather.temp,
       condition: weather.condition,
       humidity: weather.humidity
     };
+    
+    // 출력 스키마로 검증
+    return WeatherOutputSchema.parse(result);
   }
 };
 
@@ -84,6 +91,7 @@ const tools = [calculatorTool, weatherTool];
 2. **타입 안전성**: TypeScript 타입과 Zod 스키마 일치
 3. **기본값 제공**: 선택적 매개변수에 합리적 기본값
 4. **검증 로직**: 비즈니스 규칙을 스키마에 포함
+5. **입출력 스키마**: 입력뿐만 아니라 출력도 스키마로 정의하여 데이터 무결성 보장
 
 ### 고급 스키마 예제
 
@@ -380,11 +388,12 @@ echo '{"jsonrpc": "2.0", "id": 2, "method": "tools/call", "params": {"name": "ca
 
 ## 베스트 프랙티스
 
-1. **타입 우선**: 항상 TypeScript 타입을 먼저 정의하고 Zod 스키마로 구현
+1. **스키마 우선**: 입력과 출력 모두 Zod 스키마로 정의하고 타입 추론 활용
 2. **명확한 네이밍**: 도구명과 매개변수명은 의미가 명확해야 함
-3. **에러 메시지**: 사용자가 이해할 수 있는 친화적인 에러 메시지
-4. **문서화**: 복잡한 도구는 별도 문서 작성
-5. **테스트**: 각 도구에 대한 단위 테스트 작성
-6. **로깅**: 디버깅을 위한 적절한 로깅 구현
+3. **출력 검증**: execute 함수에서 반환값을 출력 스키마로 검증
+4. **에러 메시지**: 사용자가 이해할 수 있는 친화적인 에러 메시지
+5. **문서화**: 복잡한 도구는 별도 문서 작성
+6. **테스트**: 각 도구에 대한 단위 테스트 작성
+7. **로깅**: 디버깅을 위한 적절한 로깅 구현
 
 이 가이드를 따라하면 효과적이고 사용자 친화적인 MCP 서버를 구축할 수 있습니다.
