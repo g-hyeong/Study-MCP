@@ -1,0 +1,32 @@
+{
+  "name": "mcp-skeleton-server",
+  "version": "1.0.0",
+  "description": "Minimal TypeScript-based MCP server skeleton with Zod schema validation",
+  "main": "dist/server.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx --watch src/server.ts",
+    "start": "node dist/server.js",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": ["mcp", "typescript", "skeleton", "template"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.6.0",
+    "zod": "^3.22.0",
+    "zod-to-json-schema": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "prettier": "^3.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  }
+}
